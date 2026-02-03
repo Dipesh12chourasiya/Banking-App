@@ -16,6 +16,10 @@ public class Account {
 
     private double balance;
 
+    public Account(){
+
+    }
+
     public Account(Long id, String accountHolderName, double balance) {
         this.id = id;
         this.accountHolderName = accountHolderName;

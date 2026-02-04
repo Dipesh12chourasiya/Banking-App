@@ -5,6 +5,8 @@ import com.bank.banking_app.entity.Account;
 import com.bank.banking_app.entity.Transaction;
 import com.bank.banking_app.entity.TransactionStatus;
 import com.bank.banking_app.entity.TransactionType;
+import com.bank.banking_app.exception.AccountNotFoundException;
+import com.bank.banking_app.exception.InsufficientBalanceException;
 import com.bank.banking_app.mapper.AccountMapper;
 import com.bank.banking_app.repository.AccountRepository;
 import com.bank.banking_app.repository.TransactionRepository;
@@ -37,7 +39,8 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountDto getAccountById(Long id) {
 
-        Account account = accountRepository.findById(id).orElseThrow(() -> new RuntimeException("Account does not exists"));
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException("Account does not exists"));
         return AccountMapper.mapToAccountDto(account);
     }
 
@@ -45,7 +48,7 @@ public class AccountServiceImpl implements AccountService {
     public AccountDto deposit(Long id, double amount) {
 
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Account does not exists"));
+                .orElseThrow(() -> new AccountNotFoundException("Account does not exists"));
 
         account.setBalance(account.getBalance() + amount);
         Account savedAccount = accountRepository.save(account);
@@ -67,7 +70,7 @@ public class AccountServiceImpl implements AccountService {
     public AccountDto withdraw(Long id, double amount) {
 
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Account does not exists"));
+                .orElseThrow(() -> new AccountNotFoundException("Account does not exists"));
 
         if (account.getBalance() < amount) {
 
@@ -80,7 +83,7 @@ public class AccountServiceImpl implements AccountService {
             failedTransaction.setStatus(TransactionStatus.FAILED);
 
             transactionRepository.save(failedTransaction);
-            throw new RuntimeException("Insufficient amount");
+            throw new InsufficientBalanceException("Insufficient amount");
         }
 
         account.setBalance(account.getBalance() - amount);

@@ -5,7 +5,12 @@ import com.bank.banking_app.service.AccountService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.bank.banking_app.entity.Transaction;
+import com.bank.banking_app.service.TransactionService;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -14,9 +19,12 @@ import java.util.Map;
 public class AccountController {
 
     private AccountService accountService;
+    private TransactionService transactionService;
 
-    public AccountController(AccountService accountService) {
+    public AccountController(AccountService accountService,
+                             TransactionService transactionService) {
         this.accountService = accountService;
+        this.transactionService = transactionService;
     }
 
     // Add Account REST API
@@ -65,4 +73,32 @@ public class AccountController {
         return ResponseEntity.ok("Account Deleted Successfully");
     }
 
+//    Get Transections with date filter
+
+    @GetMapping("/{id}/transactions")
+    public ResponseEntity<List<Transaction>> getTransactions(
+            @PathVariable Long id,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate from,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate to
+    ) {
+
+        List<Transaction> transactions;
+
+        if (from != null && to != null) {
+            transactions = transactionService.getTransactionsBetweenDates(
+                    id,
+                    from.atStartOfDay(),
+                    to.atTime(23, 59, 59)
+            );
+        } else {
+            transactions = transactionService.getAllTransactions(id);
+        }
+
+        return ResponseEntity.ok(transactions);
+    }
 }

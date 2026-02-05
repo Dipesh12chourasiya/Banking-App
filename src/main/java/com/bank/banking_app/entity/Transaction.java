@@ -8,6 +8,23 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "transactions")
 public class Transaction {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private Long accountId;
+
+    @Enumerated(EnumType.STRING)
+    private TransactionType type;
+
+    private double amount;
+
+    private LocalDateTime timestamp;
+
+    @Enumerated(EnumType.STRING)
+    private TransactionStatus status;
+
     public Long getId() {
         return id;
     }
@@ -55,20 +72,4 @@ public class Transaction {
     public void setStatus(TransactionStatus status) {
         this.status = status;
     }
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private Long accountId;
-
-    @Enumerated(EnumType.STRING)
-    private TransactionType type;
-
-    private double amount;
-
-    private LocalDateTime timestamp;
-
-    @Enumerated(EnumType.STRING)
-    private TransactionStatus status;
 }
